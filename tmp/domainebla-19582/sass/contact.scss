@@ -1,0 +1,106 @@
+@import 'compass'; 
+@import 'variable.scss';
+
+section{
+	&#contact{
+
+
+		h2{
+			text-align: left;
+		}
+
+		p{
+			margin: 0 0 25px 0;
+
+			&.adresse{
+				line-height: 20px;
+			}
+
+			&.telephone{
+				line-height: 27px;
+			}
+
+			&.email{
+				line-height: 15px;
+
+			}
+
+			img{
+				margin: 0 25px 0 0;
+			}
+		}
+
+
+		div{
+
+			.horaires{
+				img{
+					display: inline-block;
+					vertical-align:top;
+				}
+
+
+				p{
+					display: inline-block;
+					vertical-align: top;
+					line-height:19px;
+				}
+			}
+
+			.facebook{
+				display:inline-block;
+				vertical-align:top;
+				margin: 0 15px 0 0;
+			}
+
+			.twitter{
+				display:inline-block;
+				vertical-align:top;
+				margin: 0 15px 0 0;
+			}
+		}
+
+
+		form{
+
+			input{
+				border-radius: 0;
+				margin: 0 0 10px 0;
+			}
+
+			textarea{
+
+				border-radius: 0;
+				margin: 0 0 10px 0;
+			}
+
+
+			button{
+				width:100%;
+
+
+				&.btn-orange{
+					display:inline-block;
+					vertical-align: top;
+					font-family: 'Montserrat', sans-serif;
+					color: #ffffff;
+					background:#f39200;
+					font-size: 14px;
+					font-weight: 400;
+					padding: 0 15px;
+					line-height: 45px;
+					border:none;
+				}
+				
+				&.btn-orange:hover{
+					color: #ffffff;
+					text-decoration: none;
+				}
+
+			}
+	
+		}
+		
+
+	}
+}

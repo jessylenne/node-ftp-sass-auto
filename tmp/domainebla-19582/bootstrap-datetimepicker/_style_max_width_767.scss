@@ -1,0 +1,105 @@
+@media (max-width: 992px) {
+
+
+  .wrapper header.header {
+
+    .main-nav .container #navbar-collapse>ul.navbar-nav>li {
+
+      .grosBloc {
+
+        img {
+          display:none !important;
+        }
+      }
+
+    }
+
+  }
+
+}
+
+@media (max-width: 767px) {
+
+
+  .header .search-form .form-control {
+    width: 185px;
+  }
+
+  .wrapper header.header {
+
+    .header-main {
+
+      .logo {
+        margin: 0;
+        padding: 0;
+        width: 100px;
+        float: left;
+      }
+
+      .info {
+        padding: 0 0 0 0;
+      }
+
+      .contact {
+
+        p {
+          text-align:right;
+
+          &.phone {
+            margin-right: 0;
+          }
+        }
+
+      }
+
+    }
+
+    .main-nav .container #navbar-collapse>ul.navbar-nav>li {
+      font-family: 'Open Sans', sans-serif;
+      display: block;
+      vertical-align: top;
+      float: none;
+
+      a {
+        text-align: center;
+      }
+
+      .grosBloc {
+
+        max-height:none !important;
+        min-height:none !important;
+        box-shadow:none !important;
+        background:#F5F5F5 !important;
+
+        img {
+          display:none !important;
+        }
+      }
+
+    }
+
+  }
+
+
+  #myCarousel {
+    display:none;
+  }
+
+  .newsletter {
+    display:none;
+  }
+
+  footer {
+    text-align: center;
+
+    .about {
+      display:none;
+    }
+    .footer-col-inner {
+      text-align: center;
+    }
+
+  }
+
+}
+

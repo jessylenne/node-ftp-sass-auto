@@ -1,0 +1,126 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>Préprod</title>
+		<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet" integrity="sha256-MfvZlkHCEqatNoGiOXveE8FIwMzZg4W85qfrfIFBfYc= sha512-dTfge/zgoMYpP7QbHy4gWMEGsbsdZeCXz7irItjcC3sPUFtf0kuFbDz/ixG7ArTxmDjLXDmezHubeNikyKGVyQ==" crossorigin="anonymous">
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+	</head>
+	<body>
+	<header>
+		<nav class="navbar navbar-default">
+		  <div class="container-fluid">
+		    <!-- Brand and toggle get grouped for better mobile display -->
+		    <div class="navbar-header">
+		      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+		        <span class="sr-only">Toggle navigation</span>
+		        <span class="icon-bar"></span>
+		        <span class="icon-bar"></span>
+		        <span class="icon-bar"></span>
+		      </button>
+		      <a class="navbar-brand" href="#">PreProd</a>
+		    </div>
+
+		    <!-- Collect the nav links, forms, and other content for toggling -->
+		    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+		      <ul class="nav navbar-nav">
+		        <li class="active"><a href="">Watch</a></li>
+		      </ul>
+		    </div>
+		  </div>
+		</nav>
+	</header>
+		<div class="container">
+			<div class="row">
+				<div class="col-md-8">
+					<h3>Informations</h3>
+					<form method="post" id="appForm">
+						<div class="row">
+							<div class="col-md-6">
+								<div class="form-group">
+									<label for="host">Hôte</label>
+									<input type="text" class="form-control" name="host" id="host" placeholder="FTP Host"/>
+								</div>
+							</div>
+							<div class="col-md-6">
+								<div class="form-group">
+									<label for="proxy">Proxy <em>(URL)</em></label>
+									<input type="text" class="form-control" name="proxy" id="proxy" placeholder="Domain with tld (www.exemple.com)"/>
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-md-6">
+								<div class="form-group">
+									<label for="login">Identifiant</label>
+									<input type="text" class="form-control" name="login" id="login" placeholder="FTP Login"/>
+								</div>
+							</div>
+							<div class="col-md-6">
+								<div class="form-group">
+									<label for="password">Mot de passe</label>
+									<input type="text" class="form-control" name="password" id="password" placeholder="FTP Password"/>
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-md-6">
+								<div class="form-group">
+									<label for="directory">Répértoire distant</label>
+									<input type="text" class="form-control" name="directory" id="directory" placeholder="/assets/"/>
+								</div>
+							</div>
+						</div>
+
+						<div class="row">
+							<div class="checkbox">
+			                  <label>
+			                    <input type="checkbox" name="auto_open" value="1" checked/> Auto. open project folder and proxy URL
+			                  </label>
+			                </div>
+							<button type="submit" class="btn btn-default pull-right"><i class="fa fa-eye"></i> Watch!</button>
+						</div>
+					</form>
+
+					<h3>Logs</h3>
+					<div id="log"></div>
+				</div>
+				<div class="col-md-4">
+					<h3>Récapitulatif</h3>
+					<div id="recap">
+						<table class="table" style="table-layout: fixed;">
+							<tbody>
+								<tr>
+									<td>Repertoire local:</td>
+									<td id="local_repo" style="word-wrap: break-word;">En attente</td>
+								</tr>
+								<tr>
+									<td>Hot reload local:</td>
+									<td id="hot_reload_local">En attente</td>
+								</tr>
+								<tr>
+									<td>Hot reload global:</td>
+									<td id="hot_reload_global">En attente</td>
+								</tr>
+								<tr>
+									<td>BrowserSync UI:</td>
+									<td id="hot_reload_ui">En attente</td>
+								</tr>
+								<tr>
+									<td>Ressources:</td>
+									<td id="ressources">En attente</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<script type="text/javascript">var baseURL = 'http://localhost:3000/';</script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0-alpha1/jquery.min.js"></script>
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js" integrity="sha256-Sk3nkD6mLTMOF0EOpNtsIry+s1CsaqQC1rVLTAy+0yc= sha512-K1qjQ+NcF2TYO/eI3M6v8EiNYZfA95pQumfvcVrTHtwQVDG+aHRqLi/ETn2uB+1JqwYqVG3LIvdm9lj6imS/pQ==" crossorigin="anonymous"></script>
+		<script src="/socket.io/socket.io.js"></script>
+		<script src="./app.js"></script>
+	</body>
+</html>
