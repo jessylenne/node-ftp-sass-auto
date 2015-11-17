@@ -1,5 +1,6 @@
 {
-  "name": "kobaltis-preprod",
+  "name": "jessy-preprod",
+  "author": "Jessy Lenne",
   "version": "0.1.0",
   "devDependencies": {
     "body-parser": "^1.14.1",
