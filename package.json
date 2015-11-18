@@ -2,6 +2,10 @@
   "name": "jessy-preprod",
   "author": "Jessy Lenne",
   "version": "0.1.0",
+  "repository": {
+    "type":"git",
+    "url":"https://github.com/jessylenne/node-ftp-sass-auto"
+  },
   "devDependencies": {
     "body-parser": "^1.14.1",
     "browser-sync": "^2.10.0",

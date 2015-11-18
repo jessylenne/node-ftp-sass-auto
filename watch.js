@@ -166,7 +166,7 @@ function ftpConnect() {
 
 logger.log('Server listening: localhost:3000');
 server.listen('3000');
-open('localhost:3000');
+open('http://localhost:3000/');
 
 function loadWatch(projectDirectory, ftp) {
 	var sassDirectory = path.join(projectDirectory, 'sass');
