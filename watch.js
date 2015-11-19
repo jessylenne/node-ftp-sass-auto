@@ -13,17 +13,18 @@ var express = require('express')
 	browserSync = require("browser-sync").create();
 
 
-var running = false,
-	reloadingBrowsers = false,
-	project,
-	ftp,
-	watchers = [];
+var running = false, // Are we running a project yet
+	reloadingBrowsers = false, // Does browserSync is enable?
+	project, // Our project data (similar as form inputs)
+	ftp, // FTP instance
+	watchers = []; // Collection of watch's monitors
 
 app.use( bodyParser.json() );       // to support JSON-encoded bodies
 app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
   extended: true
 }));
 
+// Sending static files
 app.get('/', function(req, res) {
 	res.sendFile(path.join(__dirname, 'public/index.html'));
 });
@@ -34,7 +35,7 @@ app.get('/success.png', function(req, res) {
 	res.sendFile(path.join(__dirname, 'public/success.png'));
 });
 
-
+// Debug Logger, sending messages/informations through socket.io
 var logger = {
 	socket: null,
 	init: function() {
@@ -86,11 +87,14 @@ var logger = {
 
 logger.init();
 
+// On form submit (post/watch)
 app.post('/watch', function(req, res) {
 	logger.log('Nouveau projet');
 
+	// Store form's input in our project object, using it elsewhere
 	project = req.body;
 
+	// If FTP, browserSync or watch are already runing (second form submission), stopping them
 	if(ftp)
 		ftp.end();
 
@@ -106,10 +110,12 @@ app.post('/watch', function(req, res) {
 		});
 	}
 
+	// Connecting to FTP -> Retrieve project's files
 	ftp = new Client();
 	ftp.on('ready', function() {
 		logger.success('Connexion au FTP établie avec succès');
 
+		// We create our project directory (tmp/{login})
 		var projectDirectory = path.join(__dirname, 'tmp/'+req.body.login);
 		mkdirp(projectDirectory, function(err) {
 			if(err) {
@@ -119,33 +125,30 @@ app.post('/watch', function(req, res) {
 
 			logger.information('Repertoire du projet cree, telechargement des ressources en cours');
 			ftpDownloadDirectory(ftp, project.directory, projectDirectory, function(err) {
-			    setTimeout(function() {
-			    	if(running)
-			    		return;
+				// When all ressources has been loaded
 
-					running = true;
+				logger.success('Téléchargement des ressources terminé');
+				logger.information('Vous pouvez maintenant modifier les fichiers du projet, ils seront automatiquement compilés et mis en ligne.');
 
-					logger.success('Téléchargement des ressources terminé');
-					logger.information('Vous pouvez maintenant modifier les fichiers du projet, ils seront automatiquement compilés et mis en ligne.');
+				// Opening local directory
+				if(project.auto_open)
+					open(projectDirectory);
 
-					// Ouverture du repertoire local
-					if(project.auto_open)
-						open(projectDirectory);
+				// Sending brower additional informations
+				logger.socket.emit('recap', {el:'local_repo', val:projectDirectory});
 
-					logger.socket.emit('recap', {el:'local_repo', val:projectDirectory});
+				// Init browserify and open local URL
+				browserSync.init({
+					proxy: req.body.proxy,
+					open: project.auto_open ? 'local' : false
+				}, function(err, bs) {
+					logger.socket.emit('recap', {el:'hot_reload_local', val:bs.options.getIn(["urls", "local"])});
+					logger.socket.emit('recap', {el:'hot_reload_global', val:bs.options.getIn(["urls", "external"])});
+					logger.socket.emit('recap', {el:'hot_reload_ui', val:bs.options.getIn(["urls", "ui"])});
+				});
 
-					// Ouverture de la copie browserify
-					browserSync.init({
-						proxy: req.body.proxy,
-						open: project.auto_open ? 'local' : false
-					}, function(err, bs) {
-						logger.socket.emit('recap', {el:'hot_reload_local', val:bs.options.getIn(["urls", "local"])});
-						logger.socket.emit('recap', {el:'hot_reload_global', val:bs.options.getIn(["urls", "external"])});
-						logger.socket.emit('recap', {el:'hot_reload_ui', val:bs.options.getIn(["urls", "ui"])});
-					});
-
-			    	loadWatch(projectDirectory, ftp);
-			    }, 3000);
+				// Loading files's watchers
+		    	loadWatch(projectDirectory, ftp);
 			}, true);
 		})
 	});
@@ -158,23 +161,24 @@ app.post('/watch', function(req, res) {
 	return res.send('{result:ok}');
 });
 
-
+// FTP connection, in a separate method to be use where we need it
 function ftpConnect() {
 	ftp.connect({host:project.host, user:project.login, password:project.password});
 }
 
-
+// Listening connexions
 logger.log('Server listening: localhost:3000');
 server.listen('3000');
 open('http://localhost:3000/');
 
+// Creating file's watchers
 function loadWatch(projectDirectory, ftp) {
 	var sassDirectory = path.join(projectDirectory, 'sass');
 	var cssDirectory = projectDirectory;
 
 	console.log('loadWatch');
 
-	// Surveillance des fichiers SASS -> Compilation CSS
+	// For SASS files -> CSS Compilation
 	watch.createMonitor(sassDirectory, function (monitor) {
 		console.log('createMonitor SCSS');
 	    monitor.files['*.scss'];
@@ -187,6 +191,8 @@ function loadWatch(projectDirectory, ftp) {
 				}
 		    });
 
+	        // If it's a include (eg _variables.scss), we trigger the change on the layout.css file
+	        // @todo find a way to compile all files including this one
 	    	if(filename[0] == '_') {
 	    		console.log('Modification d\'un fichier inclut ('+filename+')');
 	    		filename = 'layout.scss';
@@ -203,7 +209,8 @@ function loadWatch(projectDirectory, ftp) {
 	      			return logger.error(err);
 	      		}
 
-	      		console.log('sass write');
+	      		// Writing file into CSS Path
+	      		// Trigerring the css's file change event
 	      		fs.writeFile(cssFilePath, result.css, function(err){
 			        if(err) {
 			        	logger.error(err);
@@ -213,19 +220,24 @@ function loadWatch(projectDirectory, ftp) {
 			    });
 	      	})
 	    });
+
+	    // Adding the monitor to the watcher's collection to destroy it on reload
 	    watchers.push(monitor);
   	});
 
-	// Surveillance des fichiers CSS -> upload
+	// CSS Files -> on changes, we upload them
+	// @todo, add a on("remove") to delete the remote file
 	watch.createMonitor(cssDirectory, function (monitor) {
 		console.log('createMonitor CSS');
 	    monitor.files['*.css'];
 	    monitor.on("changed", function (f, curr, prev) {
 	    	var filename = f.split('\\').pop();
 
+	    	// If the file is an include, or isn't CSS, don't upload it
 	    	if(filename[0] == '_' || filename.split('.').pop() !== 'css')
 	    		return console.log('Modification d\'un fichier non CSS ('+filename+')');
 
+	    	// Sending file
 	    	console.log('CSS changed', f);
 	        ftp.put(f, project.directory+filename, function(err) {
 				if (err) {
@@ -235,6 +247,8 @@ function loadWatch(projectDirectory, ftp) {
 				logger.notify(filename+' compilé et mis en ligne', 'success');
 				logger.success('Fichier uploadé avec succès');
 
+				// Ask BrowserSync to refresh all the browsers connected
+				// Trying not to refresh in sequence
 				reloadingBrowsers = true;
 				setTimeout(function() {
 					if(!reloadingBrowsers)
@@ -242,7 +256,7 @@ function loadWatch(projectDirectory, ftp) {
 
 					browserSync.reload();
 					reloadingBrowsers = false;
-				});
+				}, 300);
 		    });
 	    });
 
@@ -250,6 +264,7 @@ function loadWatch(projectDirectory, ftp) {
   	});
 }
 
+// Recursive download of a FTP directory
 function ftpDownloadDirectory(ftp, dir, dest, callback, mayUpload) {
 	console.log('ftpDownloadDirectory', dir)
 	dest = dest || path.join(__dirname, 'tmp');
